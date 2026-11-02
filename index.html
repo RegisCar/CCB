@@ -59,7 +59,7 @@ h2{font-size:18px;margin:0;font-weight:700}
 .btn.wa{background:var(--green);color:#06210f}
 .btn.ghost{background:var(--panel);color:var(--text);border:1px solid var(--line);flex:0 0 auto;padding:15px 18px}
 #app{display:flex;flex-direction:column}
-.foot{text-align:center;font-size:12px;color:var(--dim);padding:18px 0 4px;margin-top:auto}
+.foot{text-align:center;font-size:12px;color:var(--dim);padding:4px 0 8px;margin-top:22px}
 .sv-title{font-size:13px;font-weight:700;color:var(--dim);margin:16px 2px 8px}
 .sv{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer}
 .sv:last-child{border-bottom:none}
@@ -106,6 +106,8 @@ h2{font-size:18px;margin:0;font-weight:700}
 </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script>
 var INST=['Violino','Viola','Violoncelo','Flauta','Acordeon','Clarinete','Clarinete Alto - Tenor','Clarinete Baixo - Clarone','Oboé','Corne Inglês','Fagote','Sax Soprano','Sax Alto','Sax Tenor','Sax Barítono','Sax Baixo','Sax Horn','Trompete','Pocket','Cornet','FlugelHorn','Trompa','Trombone','Trombonito','Barítono','Eufônio - Bombardino','Tuba - Bombardão'];
 var KEY='ccb-contagem-v1';
@@ -217,9 +219,23 @@ function render(){
   save();
 }
 $('dt').onchange=render;listSv();
-function SK(){return 'ccb-salvos-'+EV.k}
-function getSv(){try{return JSON.parse(localStorage.getItem(SK())||'[]')}catch(e){return []}}
-function putSv(a){try{localStorage.setItem(SK(),JSON.stringify(a))}catch(e){}}
+var SV={};
+try{SV=JSON.parse(localStorage.getItem('ccb-salvos-all')||'{}')||{}}catch(e){SV={}}
+EVS.forEach(function(e){if(!SV[e.k]){try{var o=JSON.parse(localStorage.getItem('ccb-salvos-'+e.k)||'[]');if(o.length)SV[e.k]=o}catch(x){}}});
+var fsRef=null;
+try{firebase.initializeApp({apiKey:"AIzaSyCRy5Gbs-vgdREmHKHnkhZcJrh9fSXEhJ4",authDomain:"regis-car-2a5e4.firebaseapp.com",projectId:"regis-car-2a5e4",storageBucket:"regis-car-2a5e4.firebasestorage.app",messagingSenderId:"999785655653",appId:"1:999785655653:web:78e5b85fdfeea22241c58c"});fsRef=firebase.firestore().collection('ccb').doc('salvos')}catch(e){}
+function saveLocal(){try{localStorage.setItem('ccb-salvos-all',JSON.stringify(SV))}catch(e){}}
+function getSv(){return ((SV&&SV[EV.k])||[]).slice()}
+function putSv(a){SV[EV.k]=a;saveLocal();if(!fsRef)return Promise.reject();var o={};o[EV.k]=a;o.atualizadoEm=Date.now();return fsRef.set(o,{merge:true})}
+function onRemote(snap){
+  var data=snap.exists?snap.data():{};
+  for(var k in data){if(k!=='atualizadoEm')SV[k]=data[k]}
+  var up={},any=false;
+  EVS.forEach(function(e){if(!(e.k in data)&&SV[e.k]&&SV[e.k].length){up[e.k]=SV[e.k];any=true}});
+  if(any){up.atualizadoEm=Date.now();fsRef.set(up,{merge:true}).catch(function(){})}
+  saveLocal();listSv()}
+if(fsRef){try{fsRef.onSnapshot(function(s){if(!s.metadata.hasPendingWrites)onRemote(s)},function(){})}catch(e){}}
+listSv();
 function fmtD(v){var p=v.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
 function listSv(){
   var a=getSv().sort(function(x,y){return x.d<y.d?1:-1}),el=$('salvos');el.innerHTML='';
@@ -232,7 +248,7 @@ function listSv(){
     r.onclick=function(){for(var k in cnt)cnt[k]=0;for(var j in s.c)if(j in cnt)cnt[j]=s.c[j]|0;$('dt').value=s.d;build();render();window.scrollTo(0,0);msg('Salvo de '+fmtD(s.d)+' aberto')};
     r.querySelector('.x').onclick=function(e){e.stopPropagation();if(!confirm('Apagar o salvo de '+fmtD(s.d)+'?'))return;putSv(getSv().filter(function(z){return z.d!==s.d}));listSv()};
     el.appendChild(r)})}
-$('save').onclick=function(){var d=$('dt').value;if(!d){msg('Escolha a data');return}var a=getSv().filter(function(z){return z.d!==d});a.push({d:d,c:JSON.parse(JSON.stringify(cnt))});putSv(a);listSv();msg('Salvo em '+fmtD(d))};
+$('save').onclick=function(){var d=$('dt').value;if(!d){msg('Escolha a data');return}var a=getSv().filter(function(z){return z.d!==d});a.push({d:d,c:JSON.parse(JSON.stringify(cnt)),u:Date.now()});var p=putSv(a);listSv();msg('Salvo em '+fmtD(d));p.then(function(){msg('Salvo em '+fmtD(d)+' e enviado para a rede')}).catch(function(){msg('Salvo só neste aparelho (sem acesso à rede)')})};
 function msg(m){$('ok').textContent=m;setTimeout(function(){$('ok').textContent=''},2200)}
 $('copy').onclick=function(){
   var r=report();
