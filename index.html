@@ -111,7 +111,7 @@ h2{font-size:18px;margin:0;font-weight:700}
 <script>
 var INST=['Violino','Viola','Violoncelo','Flauta','Acordeon','Clarinete','Clarinete Alto - Tenor','Clarinete Baixo - Clarone','Oboé','Corne Inglês','Fagote','Sax Soprano','Sax Alto','Sax Tenor','Sax Barítono','Sax Baixo','Sax Horn','Trompete','Pocket','Cornet','FlugelHorn','Trompa','Trombone','Trombonito','Barítono','Eufônio - Bombardino','Tuba - Bombardão'];
 var KEY='ccb-contagem-v1';
-var cnt={};INST.forEach(function(n){cnt[n]=0});cnt.__org=0;
+var cnt={};INST.forEach(function(n){cnt[n]=0});cnt.__org=0;['__irmas','__irmaos','__anc','__diac','__encr','__exam','__encl','__instr','__alun'].forEach(function(k){cnt[k]=0});
 try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv)for(var k in sv)if(k in cnt)cnt[k]=sv[k]|0}catch(e){}
 function $(i){return document.getElementById(i)}
 function p2(n){return (n<10?'0':'')+n}
@@ -126,7 +126,8 @@ function show(id){$('menu').classList.toggle('on',id==='menu');$('rel').classLis
 var EVS=[{k:'culto',t:'Culto',h:'C U L T O'},{k:'jovens',t:'Reunião de Jovens',h:'REUNIÃO DE JOVENS'},{k:'mocidade',t:'Reunião para a Mocidade',h:'REUNIÃO PARA A MOCIDADE'},{k:'cultomoc',t:'Culto para a Mocidade',h:'CULTO PARA A MOCIDADE'},{k:'ensaio',t:'Ensaio Local',h:'ENSAIO LOCAL'}];
 var EV=EVS[0];
 function loadCnt(){for(var k in cnt)cnt[k]=0;KEY='ccb-contagem-v1'+(EV.k==='culto'?'':'-'+EV.k);try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv)for(var j in sv)if(j in cnt)cnt[j]=sv[j]|0}catch(e){}}
-function build(){$('inst').innerHTML='';INST.forEach(function(n){$('inst').appendChild(row(n,n))});$('inst').appendChild(row('Organistas','__org','org'))}
+var EXTRA=[['Irmãs cantoras','__irmas'],['Irmãos cantores','__irmaos'],['Ancião','__anc'],['Diácono','__diac'],['Encarregado Regional','__encr'],['Examinadora','__exam'],['Encarregado local','__encl'],['Instrutores da (Central)','__instr'],['Alunos da (Central)','__alun']];
+function build(){$('inst').innerHTML='';INST.forEach(function(n){$('inst').appendChild(row(n,n))});var en=EV.k==='ensaio';$('inst').appendChild(row('Organistas','__org',en?'':'org'));if(en)EXTRA.forEach(function(x){$('inst').appendChild(row(x[0],x[1]))})}
 var b0=$('open-rel');b0.dataset.ev='culto';
 EVS.slice(1).forEach(function(e){var b=b0.cloneNode(true);b.removeAttribute('id');b.dataset.ev=e.k;b.querySelector('span').textContent=e.t;b0.parentNode.appendChild(b)});
 var ft=document.createElement('div');ft.className='foot';ft.textContent='© Copyright RRM/';$('app').appendChild(ft);
@@ -192,7 +193,24 @@ var EM={vl:'🎻',vc:'🎻',fl:'🪈',cl:'🎶',fg:'🎶',sx:'🎷',tp:'🎺',hn
 function wid(s){var w=0;for(var ch of s){var c=ch.codePointAt(0);w+=ch===' '?.28:c>0x2000?1.2:/[A-Z]/.test(ch)?.65:ch==='-'?.33:/[0-9]/.test(ch)?.55:.52}return w}
 function ul(s){return s.split('').map(function(c){return c+'\u0332'}).join('')}
 function ctr(s,b,r){var w=wid(s)*(b?1.05:1),p=Math.max(0,Math.round((15-w)/2/.28));return ' '.repeat(p)+(r||(b?'*'+s+'*':s))}
-function report(){
+var ICOpp="<circle cx='12' cy='8' r='3.5'/><path d='M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5'/>";
+ICO.pp=ICOpp;EXTRA.forEach(function(x){IC[x[0]]='pp'});
+function totOf(c){var m=0;INST.forEach(function(n){m+=c[n]|0});m+=c.__org|0;if(EV.k==='ensaio')m+=(c.__irmas|0)+(c.__irmaos|0);return m}
+function reportEnsaio(){
+  var dv=$('dt').value.split('-'),ds=dv.length===3?dv[2]+'/'+dv[1]+'/'+dv[0]:'';
+  var mus=0,lines=[];
+  INST.forEach(function(n){if(cnt[n]>0){mus+=cnt[n];lines.push(p2(cnt[n])+'   '+(cnt[n]>1?(PL[n]||n+'s'):n))}});
+  var org=cnt.__org,tot=mus+org,ir=cnt.__irmas,io=cnt.__irmaos;
+  var sum=p2(mus)+'  '+(mus===1?'Músico':'Músicos');
+  if(org>0)sum+=' +  '+p2(org)+' '+(org===1?'Organista':'Organistas');
+  var out=['\u200E'+ctr('C E N T R A L - Artur Nogueira',0,'*C E N T R A L - '+ul('Artur Nogueira')+'*'),'',ctr('👗🎹 ENSAIO LOCAL 👔🎷🎺📯🎻',1),'',ctr('🗓️ DIA '+ds),'','Deus preparou hoje 🎼🎶',''].concat(lines,lines.length?['']:[],[sum,'','Total  '+p2(tot)]);
+  if(ir>0||io>0){out.push('+');if(ir>0)out.push(p2(ir)+' '+(ir===1?'IRMÃ CANTORA':'IRMÃS CANTORAS'));if(io>0)out.push(p2(io)+' '+(io===1?'IRMÃO CANTOR':'IRMÃOS CANTORES'));out.push('','= TOTAL GERAL  '+p2(tot+ir+io))}
+  var R=[['__anc','Ancião','Anciães'],['__diac','Diácono','Diáconos'],['__encr','Encarregado Regional','Encarregados Regionais'],['__exam','Examinadora','Examinadoras'],['__encl','Encarregado local','Encarregados locais'],['__instr','Instrutor da (Central)','Instrutores da (Central)'],['__alun','Aluno da (Central)','Alunos da (Central)']];
+  var rl=[];R.forEach(function(r){var n=cnt[r[0]];if(n>0)rl.push(p2(n)+'  '+(n>1?r[2]:r[1]))});
+  out=out.concat(rl.length?['']:[],rl,['','DEUS ABENÇOE🙏🏿']);
+  return out.join('\n')}
+function report(){return EV.k==='ensaio'?reportEnsaio():reportBase()}
+function reportBase(){
   var dv=$('dt').value.split('-'),ds=dv.length===3?dv[2]+'/'+dv[1]+'/'+dv[0].slice(2):'';
   var mus=0,lines=[];
   INST.forEach(function(n){if(cnt[n]>0){mus+=cnt[n];lines.push(p2(cnt[n])+'   '+(cnt[n]>1?(PL[n]||n+'s'):n))}});
@@ -214,7 +232,7 @@ function reportOld(){
 function render(){
   var mus=0;INST.forEach(function(n){mus+=cnt[n]});
   $('s-mus').textContent=mus+(mus===1?' músico':' músicos')+' + '+cnt.__org+(cnt.__org===1?' organista':' organistas');
-  $('s-tot').textContent='Total '+(mus+cnt.__org);
+  $('s-tot').textContent=(EV.k==='ensaio'&&(cnt.__irmas+cnt.__irmaos)>0)?'Total geral '+(mus+cnt.__org+cnt.__irmas+cnt.__irmaos):'Total '+(mus+cnt.__org);
   var r=report();$('prev').textContent=r;
   save();
 }
@@ -241,7 +259,7 @@ function listSv(){
   var a=getSv().sort(function(x,y){return x.d<y.d?1:-1}),el=$('salvos');el.innerHTML='';
   if(!a.length){el.innerHTML='<div class="empty">Nada salvo ainda.</div>';return}
   a.forEach(function(s){
-    var m=0;for(var k in s.c)m+=s.c[k];
+    var m=totOf(s.c);
     var r=document.createElement('div');r.className='sv';
     r.innerHTML='<div><div class="d"></div><div class="m"></div></div><button class="x" aria-label="Apagar">Apagar</button>';
     r.querySelector('.d').textContent=fmtD(s.d);r.querySelector('.m').textContent='Total '+m;
@@ -258,7 +276,7 @@ $('copy').onclick=function(){
 $('zero').onclick=function(){
   if(!confirm('Zerar todas as contagens?'))return;
   for(var k in cnt)cnt[k]=0;
-  $('inst').innerHTML='';INST.forEach(function(n){$('inst').appendChild(row(n,n))});$('inst').appendChild(row('Organistas','__org','org'));
+  build();
   render();
 };
 render();
