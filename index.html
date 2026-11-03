@@ -133,9 +133,10 @@ function d2v(){var n=cnt.__d2|0;if(!n)return '';var t=String(n);return t.slice(0
 function build(){$('inst').innerHTML='';INST.forEach(function(n){$('inst').appendChild(row(n,n))});var en=EV.ens,bt=EV.bat;$('inst').appendChild(row('Organistas','__org',(en||bt)?'':'org'));if(en)EXTRA.forEach(function(x){$('inst').appendChild(row(x[0],x[1]))});if(bt)EXTRA_BAT.forEach(function(x){$('inst').appendChild(row(x[0],x[1]))});$('ant').style.display=bt?'block':'none';$('dt2').value=d2v()}
 var b0=$('open-rel');b0.dataset.ev='culto';
 EVS.slice(1).forEach(function(e){var b=b0.cloneNode(true);b.removeAttribute('id');b.dataset.ev=e.k;b.querySelector('span').textContent=e.t;b0.parentNode.appendChild(b)});
-var ft=document.createElement('div');ft.className='foot';ft.textContent='© Copyright RRM/';$('app').appendChild(ft);
-document.querySelectorAll('[data-ev]').forEach(function(b){b.onclick=function(){EV=EVS.filter(function(e){return e.k===b.dataset.ev})[0];loadCnt();$('rtitle').textContent=EV.t;build();render();listSv();show('rel')}});
-$('back').onclick=function(){show('menu')};
+var ft=document.createElement('div');ft.className='foot';ft.innerHTML='© Copyright RRM/<br><span style="font-size:10px;opacity:.7">v4</span>';$('app').appendChild(ft);
+document.querySelectorAll('[data-ev]').forEach(function(b){b.onclick=function(){EV=EVS.filter(function(e){return e.k===b.dataset.ev})[0];loadCnt();$('rtitle').textContent=EV.t;build();render();listSv();history.pushState({s:'rel'},'');show('rel')}});
+$('back').onclick=function(){if(history.state&&history.state.s==='rel')history.back();else show('menu')};
+window.addEventListener('popstate',function(){if($('rel').classList.contains('on'))show('menu')});
 
 var ICO={
 vl:`<path d='M12 2.5V15'/><path d='M9.5 9.5C7 10 7 13 8.5 13.8 6.5 14.8 6.5 19.5 9.5 21c1.5.6 3.5.6 5 0 3-1.5 3-6.2 1-7.2 1.5-.8 1.5-3.8-1-4.3z'/><path d='M10.5 18h3'/>`,
