@@ -139,15 +139,16 @@ var EXTRA_BAT=[['Irmãos batizados hoje','__bi'],['Irmãs batizadas hoje','__bs'
 function d2v(){var n=cnt.__d2|0;if(!n)return '';var t=String(n);return t.slice(0,4)+'-'+t.slice(4,6)+'-'+t.slice(6,8)}
 function dtTxt(){var v=$('dt').value.split('-');return v.length===3?' · '+v[2]+'/'+v[1]+'/'+v[0]:''}
 function prevHTML(){
-  var n=cnt.__d2|0,t=String(n),pd=n?t.slice(6,8)+'/'+t.slice(4,6)+'/'+t.slice(0,4):'';
-  var h='<div class="box-h">Batismo anterior'+(pd?' · '+pd:'')+'</div>';
-  if(!n&&!cnt.__ai&&!cnt.__as)return h+'<div class="empty">Nenhum batismo salvo antes desta data.</div>';
-  function r(a,b){return '<div class="row"><span class="nm">'+a+'</span><b style="font-size:17px">'+b+'</b></div>'}
-  return h+r('Irmãos',cnt.__ai)+r('Irmãs',cnt.__as)+r('Total de almas',cnt.__ai+cnt.__as)}
-function build(){$('inst').innerHTML=(EV.box||EV.bat||EV.ceia)?'<div class="box-h">Músicos</div>':'';INST.forEach(function(n){$('inst').appendChild(row(n,n))});var en=EV.ens,bt=EV.bat||EV.ceia;$('inst').appendChild(row('Organistas','__org','org'));$('bat').innerHTML=bt?'<div class="box-h">'+(EV.ceia?'Santa Ceia':'Batismo'+dtTxt())+'</div>':'';if(bt)(EV.ceia?EXTRA_CEIA:EXTRA_BAT.slice(0,2)).forEach(function(x){$('bat').appendChild(row(x[0],x[1]))});$('bat').style.display=bt?'block':'none';$('ant').firstElementChild.textContent=EV.ceia?'Data da Santa Ceia anterior':'Data do batismo anterior';$('min').innerHTML='<div class="box-h">Ministério</div>';if(EV.box)EXTRA.slice(2,9).forEach(function(x){$('min').appendChild(row(x[0],x[1]))});$('min').style.display=EV.box?'block':'none';$('rec').innerHTML='<div class="box-h">Recitativo</div>';if(EV.rec)REC.forEach(function(x){$('rec').appendChild(row(x[0],x[1]))});$('rec').style.display=EV.rec?'block':'none';$('cant').innerHTML='<div class="box-h">Cantores</div>';if(EV.cant)EXTRA.slice(0,2).forEach(function(x){$('cant').appendChild(row(x[0],x[1]))});$('cant').style.display=EV.cant?'block':'none';$('gem').innerHTML='<div class="box-h">GEM</div>';if(EV.gem)[['Alunos da (Central)','__alun'],['Instrutores da (Central)','__instr']].forEach(function(x){$('gem').appendChild(row(x[0],x[1]))});$('gem').style.display=EV.gem?'block':'none';$('ant').style.display=EV.ceia?'block':'none';$('pbox').style.display=EV.bat?'block':'none';if(EV.bat)$('pbox').innerHTML=prevHTML();$('dt2').value=d2v()}
+  var k=KY(),n=cnt.__d2|0,t=String(n),pd=n?t.slice(6,8)+'/'+t.slice(4,6)+'/'+t.slice(0,4):'';
+  var ai=cnt[k.ai]|0,am=cnt[k.as]|0,nome=EV.ceia?'Santa Ceia':'Batismo';
+  var h='<div class="box-h">'+nome+' anterior'+(pd?' · '+pd:'')+'</div>';
+  if(!n&&!ai&&!am)return h+'<div class="empty">'+(EV.ceia?'Nenhuma Santa Ceia salva antes desta data.':'Nenhum batismo salvo antes desta data.')+'</div>';
+  function r(x,y){return '<div class="row"><span class="nm">'+x+'</span><b style="font-size:17px">'+y+'</b></div>'}
+  return h+(EV.ceia?r('Irmãs',am)+r('Irmãos',ai):r('Irmãos',ai)+r('Irmãs',am))+r('Total de almas',ai+am)}
+function build(){$('inst').innerHTML=(EV.box||EV.bat||EV.ceia)?'<div class="box-h">Músicos</div>':'';INST.forEach(function(n){$('inst').appendChild(row(n,n))});var en=EV.ens,bt=EV.bat||EV.ceia;$('inst').appendChild(row('Organistas','__org','org'));$('bat').innerHTML=bt?'<div class="box-h">'+(EV.ceia?'Santa Ceia':'Batismo')+dtTxt()+'</div>':'';if(bt)(EV.ceia?EXTRA_CEIA.slice(0,2):EXTRA_BAT.slice(0,2)).forEach(function(x){$('bat').appendChild(row(x[0],x[1]))});$('bat').style.display=bt?'block':'none';$('ant').firstElementChild.textContent=EV.ceia?'Data da Santa Ceia anterior':'Data do batismo anterior';$('min').innerHTML='<div class="box-h">Ministério</div>';if(EV.box)EXTRA.slice(2,9).forEach(function(x){$('min').appendChild(row(x[0],x[1]))});$('min').style.display=EV.box?'block':'none';$('rec').innerHTML='<div class="box-h">Recitativo</div>';if(EV.rec)REC.forEach(function(x){$('rec').appendChild(row(x[0],x[1]))});$('rec').style.display=EV.rec?'block':'none';$('cant').innerHTML='<div class="box-h">Cantores</div>';if(EV.cant)EXTRA.slice(0,2).forEach(function(x){$('cant').appendChild(row(x[0],x[1]))});$('cant').style.display=EV.cant?'block':'none';$('gem').innerHTML='<div class="box-h">GEM</div>';if(EV.gem)[['Alunos da (Central)','__alun'],['Instrutores da (Central)','__instr']].forEach(function(x){$('gem').appendChild(row(x[0],x[1]))});$('gem').style.display=EV.gem?'block':'none';$('ant').style.display='none';$('pbox').style.display=(EV.bat||EV.ceia)?'block':'none';if(EV.bat||EV.ceia)$('pbox').innerHTML=prevHTML();$('dt2').value=d2v()}
 var b0=$('open-rel');b0.dataset.ev='culto';
 EVS.slice(1).forEach(function(e){var b=b0.cloneNode(true);b.removeAttribute('id');b.dataset.ev=e.k;b.querySelector('span').textContent=e.t;b0.parentNode.appendChild(b)});
-var ft=document.createElement('div');ft.className='foot';ft.innerHTML='© Copyright RRM/<br><span style="font-size:10px;opacity:.7">v14</span>';$('app').appendChild(ft);
+var ft=document.createElement('div');ft.className='foot';ft.innerHTML='© Copyright RRM/<br><span style="font-size:10px;opacity:.7">v15</span>';$('app').appendChild(ft);
 document.querySelectorAll('[data-ev]').forEach(function(b){b.onclick=function(){EV=EVS.filter(function(e){return e.k===b.dataset.ev})[0];loadCnt();$('rtitle').textContent=EV.t;build();render();listSv();autoPrev();history.pushState({s:'rel'},'');show('rel')}});
 $('back').onclick=function(){if(history.state&&history.state.s==='rel')history.back();else show('menu')};
 window.addEventListener('popstate',function(){if($('rel').classList.contains('on'))show('menu')});
@@ -253,7 +254,7 @@ function autoPrev(){
   if(!(EV.bat||EV.ceia))return;
   var k=KY(),cur=$('dt').value;
   var a=getSv().filter(function(z){return z.d<cur}).sort(function(x,y){return x.d<y.d?1:-1});
-  if(!a.length){if(EV.bat){cnt[k.ai]=0;cnt[k.as]=0;cnt.__d2=0;build();render()}return}
+  if(!a.length){if(EV.bat||EV.ceia){cnt[k.ai]=0;cnt[k.as]=0;cnt.__d2=0;build();render()}return}
   var p=a[0];
   cnt[k.ai]=p.c[k.hi]|0;cnt[k.as]=p.c[k.hs]|0;cnt.__d2=parseInt(p.d.replace(/-/g,''),10);
   build();render();
@@ -319,21 +320,27 @@ var ALIAS={'Eufônio - Bombardino':'Eufônio','Tuba - Bombardão':'Tuba'};
 function normC(c){var o={};for(var k in (c||{})){var n=ALIAS[k]||k;o[n]=(o[n]||0)+(c[k]|0)}return o}
 function getSv(){return ((SV&&SV[EV.k])||[]).map(function(z){return {d:z.d,u:z.u,c:normC(z.c)}})}
 function putSv(a){SV[EV.k]=a;saveLocal();if(!fsRef)return Promise.reject();var o={};o[EV.k]=a;o.atualizadoEm=Date.now();return fsRef.set(o,{merge:true})}
-var SEED={d:'2026-09-12',u:1,c:{'Violino':8,'Viola':1,'Violoncelo':1,'Clarinete':2,'Sax Soprano':1,'Sax Alto':4,'Sax Tenor':1,'Sax Barítono':1,'FlugelHorn':1,'Trompete':3,'Trombone':5,'Eufônio':1,'Tuba':4,'__org':9,'__bi':2,'__bs':6,'__ai':3,'__as':2,'__d2':20250613}};
-function hasSeed(a){return (a||[]).some(function(z){return z.d===SEED.d})}
+var SEEDS={
+ batismo:{flag:'ccb-seed-bat-v1',e:{d:'2026-09-12',u:1,c:{'Violino':8,'Viola':1,'Violoncelo':1,'Clarinete':2,'Sax Soprano':1,'Sax Alto':4,'Sax Tenor':1,'Sax Barítono':1,'FlugelHorn':1,'Trompete':3,'Trombone':5,'Eufônio':1,'Tuba':4,'__org':9,'__bi':2,'__bs':6,'__ai':3,'__as':2,'__d2':20250613}}},
+ santaceia:{flag:'ccb-seed-ceia-v1',e:{d:'2026-06-14',u:1,c:{'Violino':11,'Violoncelo':1,'Flauta':3,'Sax Soprano':4,'Sax Alto':5,'Sax Tenor':4,'Trompete':5,'FlugelHorn':1,'Trompa':1,'Trombone':6,'Eufônio':2,'Tuba':6,'__org':7,'__cs':133,'__ci':118,'__ps':115,'__pi':111,'__d2':20250608}}}};
+function hasSeed(a,d){return (a||[]).some(function(z){return z.d===d})}
 function seedOnce(push,noflag){
-  try{if(localStorage.getItem('ccb-seed-bat-v1'))return}catch(e){}
-  if(!hasSeed(SV.batismo)){SV.batismo=(SV.batismo||[]).concat([SEED]);if(push&&fsRef){var o={batismo:SV.batismo,atualizadoEm:Date.now()};fsRef.set(o,{merge:true}).catch(function(){})}}
-  if(!noflag){try{localStorage.setItem('ccb-seed-bat-v1','1')}catch(e){}}
+  var up={},any=false;
+  for(var k in SEEDS){var sd=SEEDS[k];
+    try{if(localStorage.getItem(sd.flag))continue}catch(e){}
+    if(!hasSeed(SV[k],sd.e.d)){SV[k]=(SV[k]||[]).concat([sd.e]);up[k]=SV[k];any=true}
+    if(!noflag){try{localStorage.setItem(sd.flag,'1')}catch(e){}}
+  }
+  if(any&&push&&fsRef){up.atualizadoEm=Date.now();fsRef.set(up,{merge:true}).catch(function(){})}
   saveLocal()}
-setTimeout(function(){seedOnce(false,true);listSv();if(EV.bat)autoPrev()},5000);
+setTimeout(function(){seedOnce(false,true);listSv();if(EV.bat||EV.ceia)autoPrev()},5000);
 function onRemote(snap){
   var data=snap.exists?snap.data():{};
   for(var k in data){if(k!=='atualizadoEm')SV[k]=data[k]}
   seedOnce(true);var up={},any=false;
   EVS.forEach(function(e){if(!(e.k in data)&&SV[e.k]&&SV[e.k].length){up[e.k]=SV[e.k];any=true}});
   if(any){up.atualizadoEm=Date.now();fsRef.set(up,{merge:true}).catch(function(){})}
-  saveLocal();listSv();if(EV.bat||(EV.ceia&&!(cnt.__d2|0)))autoPrev()}
+  saveLocal();listSv();if(EV.bat||EV.ceia)autoPrev()}
 if(fsRef){try{fsRef.onSnapshot(function(s){if(!s.metadata.hasPendingWrites)onRemote(s)},function(){})}catch(e){}}
 listSv();
 function fmtD(v){var p=v.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
